@@ -15,7 +15,7 @@ add_executable(${PRO_NAME}
     src/mapreduce.cpp
     )
 
-target_link_libraries(${PRO_NAME} async Boost::program_options)
+target_link_libraries(${PRO_NAME} Boost::program_options)
 
 target_include_directories(${PRO_NAME} PRIVATE
     "${CMAKE_BINARY_DIR}"
