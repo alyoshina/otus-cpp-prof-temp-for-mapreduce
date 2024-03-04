@@ -1,0 +1,5 @@
+https://github.com/libssh2/libssh2.git
+
+sudo apt-get install libssl-dev
+sudo apt-get install libwolfssl-dev
+sudo apt-get install zlib1g-dev
