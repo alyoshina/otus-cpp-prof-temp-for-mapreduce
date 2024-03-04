@@ -66,12 +66,14 @@ public:
         return instance;
     }
     template<typename T, typename Client>
-    ba::awaitable<std::shared_ptr<T>> connection(std::shared_ptr<Client> client) {
-        auto initiate = [this, client]<typename Handler>(Handler&& handler) mutable {
+    ba::awaitable<std::shared_ptr<T>> connection(std::shared_ptr<Client> client, std::string &&path) {
+        auto initiate = [this, client, &path]<typename Handler>(Handler&& handler) mutable {
             ba::post(threadPool //client->getParserContext().get_executor()
-                        , [handler = std::forward<Handler>(handler), this, client]() mutable {
+                        , [handler = std::forward<Handler>(handler), this, client, &path]() mutable {
+                //std::cout << "!!!PATH" << path << std::endl;
+                //std::string p = client->getIp();
                 std::string ip = client->getIp();
-                handler(this->connect<T>(std::move(ip)));
+                handler(this->connect<T>(std::move(ip), std::move(path)));
             });
         };
         return ba::async_initiate<decltype(ba::use_awaitable), void(std::shared_ptr<T>)>(initiate, ba::use_awaitable);
@@ -79,8 +81,8 @@ public:
     ba::thread_pool& getThreadPool() { return threadPool; }
 private:
     template<typename T>
-    std::shared_ptr<T> connect(std::string &&ip) {
-        return std::make_shared<T>(ip);
+    std::shared_ptr<T> connect(std::string &&ip, std::string &&path) {
+        return std::make_shared<T>(ip, path);
     }
 
     explicit CreateConnection()
@@ -97,8 +99,10 @@ private:
 };
 
 class SshConnection {
+    std::string path;
+    std::string ip;
 public:
-    SshConnection(std::string &ip) {
+    SshConnection(std::string &ipAddr, std::string &dataPath) : path(dataPath), ip(ipAddr) {
         LibSSH2::Init();
         uint32_t hostaddr = inet_addr(ip.c_str());
         //connect socket
@@ -143,7 +147,8 @@ public:
         bool auth_pw = true;
         const char *username = "dts";
         const char *password = "dts";
-        const char *sftppath = "/home/dts/testssh/file.txt";
+        //const char *sftppath = "/home/dts/testssh/file.txt";
+        const char *sftppath = path.data();
         if(auth_pw) {
             /* We could authenticate via password */ 
             while((rc = libssh2_userauth_password(session.m_session, username, password)) == LIBSSH2_ERROR_EAGAIN);
@@ -173,8 +178,10 @@ public:
         /* Request a file via SFTP */ 
         sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
                                     LIBSSH2_FXF_READ, 0);
-        //std::cout << "getSize=" << getSize() << std::endl;
-
+        if (!sftp_handle) {
+            std::cout << "errno=" << libssh2_session_last_errno(session.m_session) << std::endl;
+            std::cout << "ERROR sftp_handle=" << sftp_handle << std::endl;
+        }
 
     }
     ~SshConnection() {
