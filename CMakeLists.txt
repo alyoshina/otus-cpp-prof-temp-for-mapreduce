@@ -7,6 +7,13 @@ set(PRO_NAME "mapreduce")
 
 project(${PRO_NAME} VERSION ${PROJECT_VERSION})
 
+# build libssh2
+#add_subdirectory(
+#    "${CMAKE_CURRENT_SOURCE_DIR}/libssh2"
+#    "libssh2"
+#    "install"
+#)
+
 configure_file(version.h.in version.h)
 find_package(Boost CONFIG COMPONENTS program_options REQUIRED)
 
