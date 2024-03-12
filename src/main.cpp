@@ -1,4 +1,3 @@
-#include "server.h"
 #include "mapreduce.h"
 
 #include <boost/asio/thread_pool.hpp>
@@ -7,7 +6,20 @@
 namespace po = boost::program_options;
 
 int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv) {
-
+    //processing сommand line argument
+    po::options_description desc {"Options"};
+    desc.add_options()
+            ("help,h", "MapReduce task launch system")
+            ("worker,w", po::value<bool>() -> default_value(true), "for main node value is false, for worker node value is true")
+            ("port,p", po::value<unsigned short>() -> default_value(9000), "listening port for main node or main node port for worker node")
+            ("ip,i", po::value<std::string>() -> default_value("10.10.10.139"), "main node host for worker node");
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+    if (vm.count("help")) {
+        std::cout << desc << "\n";
+        return 0;
+    }
     try {
         {
             mapper_t mapper = [] (mapper_element_t& s) { return s; };
@@ -35,7 +47,7 @@ int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv) {
 
             auto mr = std::make_shared<MapReduce>(mapper, reducer);
             //worker
-            mr->run();
+            mr->run(vm["worker"].as<bool>(), vm["port"].as<unsigned short>(), vm["ip"].as<std::string>());
 
             ioContext.run();
         }

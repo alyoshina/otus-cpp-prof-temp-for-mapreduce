@@ -15,16 +15,19 @@
 #include <memory>
 #include <boost/algorithm/string.hpp>
 
-class Server;
+class MainNode;
+class Section;
 
 class Client : public std::enable_shared_from_this<Client> {
 public:
-    Client(tcp::socket s, Server& server)
+    Client(tcp::socket s, MainNode& mn)
         : socket(std::move(s))
-        , server(server) {
-        //parser = std::make_shared<Parser>(std::make_shared<Lexer>(input));
+        , mainNode(mn) {
     }
-    ~Client() = default;
+    ~Client() // = default;
+    {
+        std::cout << "delete Client" << std::endl;
+    }
     void start() {
         ba::co_spawn(socket.get_executor()
                     , [self = shared_from_this()] { return self->read(); }, ba::detached);
@@ -32,14 +35,14 @@ public:
     std::string getIp() {
         return socket.remote_endpoint().address().to_string();
     }
+    void stop();
+    ba::awaitable<void> mapper(std::shared_ptr<Section> s, std::shared_ptr<SshConnData> d);
+
 private:
     tcp::socket socket;
-    Server& server;
+    MainNode& mainNode;
     ba::streambuf buffer;
-    //std::stringstream input;
-    //std::shared_ptr<Parser> parser;
     std::string user;
-    //std::string host;
     std::string inDataPath;
 
     ba::awaitable<void> read();

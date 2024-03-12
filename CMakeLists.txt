@@ -14,9 +14,11 @@ find_package(libssh2 REQUIRED CONFIG)
 
 add_executable(${PRO_NAME}
     src/main.cpp
-    #src/mapreduce.cpp
-    src/server.cpp
+    src/mapreduce.cpp
+    src/main_node.cpp
+    src/worker_node.cpp
     src/client.cpp
+    src/ssh.cpp
     )
 
 target_link_libraries(${PRO_NAME} Boost::program_options)

@@ -15,23 +15,28 @@
 
 #include <format>
 
+/** @brief  LibSSH2 initialization
+*/
 class LibSSH2 {
 public:
-  static void Init() {
-     static LibSSH2 instance;
-  }
+    static void init() {
+        static LibSSH2 instance;
+    }
 private:
-  explicit LibSSH2() {
-     if (libssh2_init(0) != 0) {
-        ;
-        std::cout << "ERROR libssh2_init" << std::endl;
-        //throw std::runtime_error("libssh2 initialization failed");
-     }
-  }
-  ~LibSSH2() {
-     std::cout << "shutdown libssh2" << std::endl;
-     libssh2_exit();
-  }
+    explicit LibSSH2() {
+        if (libssh2_init(0) != 0) {
+            Logger::getInstance().log("libssh2 initialization failed");
+            throw std::runtime_error("libssh2 initialization failed");
+        }
+    }
+
+    ~LibSSH2() {
+        std::cout << "shutdown libssh2" << std::endl;
+        libssh2_exit();
+    }
+    LibSSH2(const LibSSH2&) = delete;
+    LibSSH2& operator=(const LibSSH2&) = delete;
+    LibSSH2& operator=(LibSSH2&&) = delete;
 };
 
 class Session {
@@ -59,52 +64,22 @@ public:
   LIBSSH2_SESSION *m_session;
 };
 
-class CreateConnection {
-public:
-    static CreateConnection& init() {
-        static CreateConnection instance;
-        return instance;
-    }
-    template<typename T, typename Client>
-    ba::awaitable<std::shared_ptr<T>> connection(std::shared_ptr<Client> client, std::string &&path) {
-        auto initiate = [this, client, &path]<typename Handler>(Handler&& handler) mutable {
-            ba::post(threadPool //client->getParserContext().get_executor()
-                        , [handler = std::forward<Handler>(handler), this, client, &path]() mutable {
-                //std::cout << "!!!PATH" << path << std::endl;
-                //std::string p = client->getIp();
-                std::string ip = client->getIp();
-                handler(this->connect<T>(std::move(ip), std::move(path)));
-            });
-        };
-        return ba::async_initiate<decltype(ba::use_awaitable), void(std::shared_ptr<T>)>(initiate, ba::use_awaitable);
-    }
-    ba::thread_pool& getThreadPool() { return threadPool; }
-private:
-    template<typename T>
-    std::shared_ptr<T> connect(std::string &&ip, std::string &&path) {
-        return std::make_shared<T>(ip, path);
-    }
-
-    explicit CreateConnection()
-    : threadPool(1)
-    , signals({threadPool, SIGINT, SIGTERM})
-    {
-        signals.async_wait([this](auto, auto) { std::cout << "threadPool.stop" << std::endl; threadPool.stop(); });
-    }
-    ~CreateConnection() {
-        threadPool.join();
-    }
-    ba::thread_pool threadPool;
-    ba::signal_set signals;
+struct SshConnData {
+    std::string ip;
+    std::string user;
+    std::string pass;
+    std::string path;
 };
 
+std::ostream &operator<<(std::ostream &out, SshConnData const &s);
+std::istream &operator>>(std::istream &in, SshConnData &s);
+
 class SshConnection {
-    std::string path;
-    std::string ip;
+    std::shared_ptr<SshConnData> data;
 public:
-    SshConnection(std::string &ipAddr, std::string &dataPath) : path(dataPath), ip(ipAddr) {
-        LibSSH2::Init();
-        uint32_t hostaddr = inet_addr(ip.c_str());
+    SshConnection(std::shared_ptr<SshConnData> d) : data(d) {
+        LibSSH2::init();
+        uint32_t hostaddr = inet_addr(data->ip.c_str());
         //connect socket
         struct sockaddr_in sin;
         sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -145,10 +120,10 @@ public:
         std::cout << str << std::endl;
         //auth
         bool auth_pw = true;
-        const char *username = "dts";
-        const char *password = "dts";
+        const char *username = data->user.data(); //"dts";
+        const char *password = data->pass.data(); //"dts";
         //const char *sftppath = "/home/dts/testssh/file.txt";
-        const char *sftppath = path.data();
+        const char *sftppath = data->path.data();
         if(auth_pw) {
             /* We could authenticate via password */ 
             while((rc = libssh2_userauth_password(session.m_session, username, password)) == LIBSSH2_ERROR_EAGAIN);
@@ -229,7 +204,7 @@ public:
                 break;
             }
         } while(1);
-        return false;//line.size();
+        return false;
     }
     void read() {
         do {
@@ -248,7 +223,7 @@ public:
             }
         } while(1);
     }
-
+private:
     Session session;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;

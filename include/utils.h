@@ -1,5 +1,7 @@
 #pragma once
 
+#include "logger.h"
+
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
