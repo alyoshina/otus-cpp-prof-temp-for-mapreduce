@@ -34,8 +34,9 @@ jobs:
         with:
           submodules: true
       - run: sudo apt-get update -y && sudo apt-get install cmake libboost-program-options-dev libssl-dev libwolfssl-dev zlib1g-dev -y
-      - run: cd libssh2
+      - run: cd libssh2/
       - run: ls -lah
+      - run: pwd
       - run: echo "-----------------------"
       - run: cd ..
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_C_COMPILER="/usr/bin/gcc-13" -DCMAKE_CXX_COMPILER="/usr/bin/g++-13"
