@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - run: sudo apt-get update -y && sudo apt-get install cmake libboost-program-options-dev libssl-dev libwolfssl-dev zlib1g-dev -y
+      - run: sudo apt-get update -y && sudo apt-get install cmake libboost-dev libboost-program-options-dev libssl-dev libwolfssl-dev zlib1g-dev -y
       - run: cmake -S libssh2 -B libssh2/build && sudo cmake --build libssh2/build --target install
       - run: echo "-----------------------"
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_C_COMPILER="/usr/bin/gcc-13" -DCMAKE_CXX_COMPILER="/usr/bin/g++-13"
