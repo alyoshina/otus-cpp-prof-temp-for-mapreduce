@@ -35,6 +35,9 @@ jobs:
           submodules: true
       - run: sudo apt-get update -y && sudo apt-get install cmake libboost-program-options-dev libssl-dev libwolfssl-dev zlib1g-dev -y
       - run: git submodule init && git submodule update
+      - run: cd ./include
+      - run: ls -lah
+      - run: cd ..
       - run: cd ./libssh2
       - run: ls -lah
       - run: pwd
