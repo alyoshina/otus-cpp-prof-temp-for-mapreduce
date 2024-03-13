@@ -36,8 +36,8 @@ jobs:
       - run: sudo apt-get update -y && sudo apt-get install cmake libssl-dev libwolfssl-dev zlib1g-dev -y
       - run: cmake -S libssh2 -B libssh2/build && sudo cmake --build libssh2/build --target install
       - run: echo "-----------------------"
-      - run: wget https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz && tar xvf boost_1_80_0.tar.gz
-      - run: ./boost_1_80_0/bootstrap.sh --prefix=/usr/ && sudo ./boost_1_80_0/b2 install
+      - run: wget https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz && tar xvf boost_1_81_0.tar.gz
+      - run: ./boost_1_81_0/bootstrap.sh --prefix=/usr/ && sudo ./boost_1_81_0/b2 install
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_C_COMPILER="/usr/bin/gcc-13" -DCMAKE_CXX_COMPILER="/usr/bin/g++-13"
       - run: cmake --build .
       - run: cmake --build . --target package
