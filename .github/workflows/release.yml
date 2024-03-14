@@ -30,14 +30,6 @@ jobs:
     runs-on: ubuntu-22.04
     permissions: write-all
     steps:
-      - name: Get boost 1.81
-        working-directory: '.'
-        run: ls && pwd && wget https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz && tar xvf boost_1_81_0.tar.gz
-
-      - name: Build boost 1.81
-        working-directory: './boost_1_81_0'
-        run: ls && pwd && ./bootstrap.sh --prefix=/usr/ && sudo ./b2 install && echo "-----------------------"
-      
       - name: Build project
       - uses: actions/checkout@v3
         with:
