@@ -30,15 +30,29 @@ jobs:
     runs-on: ubuntu-22.04
     permissions: write-all
     steps:
+      - name: Get boost 1.81
+        with:
+          working-directory: '.'
+      - run: ls
+      - run: pwd
+      - run: wget https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz && tar xvf boost_1_81_0.tar.gz
+
+      - name: Build boost 1.81
+        with:
+          working-directory: 'boost_1_81_0'
+      - run: ls && pwd
+      - run: echo "-----------------------"
+      - run: ./bootstrap.sh --prefix=/usr/ && ls
+      - run: sudo ./b2 install
+      
+      - name: Build project
       - uses: actions/checkout@v3
         with:
           submodules: true
       - run: sudo apt-get update -y && sudo apt-get install cmake libssl-dev libwolfssl-dev zlib1g-dev -y
       - run: cmake -S libssh2 -B libssh2/build && sudo cmake --build libssh2/build --target install
-      - run: echo "-----------------------"
-      - run: wget https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz && tar xvf boost_1_81_0.tar.gz
-      - run: ./boost_1_81_0/bootstrap.sh --prefix=/usr/ && ls
-      - run: sudo ./b2 install
+      - run: ls
+      
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_C_COMPILER="/usr/bin/gcc-13" -DCMAKE_CXX_COMPILER="/usr/bin/g++-13"
       - run: cmake --build .
       - run: cmake --build . --target package
