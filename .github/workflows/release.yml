@@ -26,37 +26,3 @@ jobs:
           allow_empty_commit: false
           force_orphan: true
           publish_branch: gh-pages
-  build:
-    runs-on: ubuntu-22.04
-    permissions: write-all
-    steps:
-      - name: Build project
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-      - run: sudo apt-get update -y && sudo apt-get install cmake libssl-dev libwolfssl-dev zlib1g-dev -y
-      - run: cmake -S libssh2 -B libssh2/build && sudo cmake --build libssh2/build --target install
-      - run: ls
-      - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_C_COMPILER="/usr/bin/gcc-13" -DCMAKE_CXX_COMPILER="/usr/bin/g++-13"
-      - run: cmake --build .
-      - run: cmake --build . --target package
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          draft: false
-          prerelease: false
-      - name: Upload release asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mapreduce-0.0.${{ github.run_number }}-Linux.deb
-          asset_name: mapreduce-0.0.${{ github.run_number }}-Linux.deb
-          asset_content_type: application/vnd.debian.binary-package
