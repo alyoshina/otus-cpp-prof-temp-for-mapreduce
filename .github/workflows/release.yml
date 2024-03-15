@@ -38,7 +38,11 @@ jobs:
       - name: Build boost 1.81
         working-directory: './boost_1_81_0'
         run: ls && pwd && ./bootstrap.sh --prefix=/usr/ && sudo ./b2 install && echo "-----------------------" && rm -rf pwd
-
+      
+      - name: Delete boost 1.81 folder
+        working-directory: '.'
+        run: ls && pwd && rm -rf ./boost_1_81_0
+        
       - uses: actions/checkout@v3
         with:
           submodules: true
