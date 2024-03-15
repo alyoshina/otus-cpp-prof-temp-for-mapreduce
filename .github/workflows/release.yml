@@ -37,7 +37,7 @@ jobs:
       
       - name: Build boost 1.81
         working-directory: './boost_1_81_0'
-        run: ls && pwd && ./bootstrap.sh --prefix=/usr/ && sudo ./b2 install && echo "-----------------------"
+        run: ls && pwd && ./bootstrap.sh --prefix=/usr/ && sudo ./b2 install && echo "-----------------------" && rm -rf pwd
 
       - uses: actions/checkout@v3
         with:
