@@ -1,0 +1,5 @@
+<map id="MainNode" name="MainNode">
+<area shape="rect" id="node1" title="MainNode is server for the WorkerNode. Сonnects clients and WorkerNodes, sends data from clients to W..." alt="" coords="55,80,137,107"/>
+<area shape="rect" id="node2" href="$classThreadPool.html" title="ThreadPool is an execution context where functions run on one of a number ( ) of threads...." alt="" coords="5,5,93,32"/>
+<area shape="rect" id="node3" href="$classNode.html" title=" " alt="" coords="117,5,171,32"/>
+</map>

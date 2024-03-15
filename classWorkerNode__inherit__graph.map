@@ -1,0 +1,6 @@
+<map id="WorkerNode" name="WorkerNode">
+<area shape="rect" id="node1" title="WorkerNode is client for the MainNode. It executes the @map and @reduce functions for the section rec..." alt="" coords="97,95,191,121"/>
+<area shape="rect" id="node2" href="$classThreadPool.html" title="ThreadPool is an execution context where functions run on one of a number ( ) of threads...." alt="" coords="5,13,93,39"/>
+<area shape="rect" id="node3" href="$classNode.html" title=" " alt="" coords="117,13,171,39"/>
+<area shape="rect" id="node4" title=" " alt="" coords="195,5,373,47"/>
+</map>
